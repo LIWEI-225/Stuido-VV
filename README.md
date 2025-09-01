@@ -37,3 +37,54 @@
 重要聲明
 本網站為功能試用版本，所有資料僅存在於瀏覽器記憶體中，重新整理頁面後將會自動清除，無法進行永久儲存或協作。
 應用於電腦，專為個人工作室或單店，如需體驗完整功能、資料儲存與更多客製化服務，請洽詢相關專業人員或開發者。
+
+System Overview: Quotation & Customer Management System
+Designed for individual studios or single-store businesses, this desktop application provides an intuitive interface to manage the entire process from quotation to project completion. The system includes the following core functionalities:
+
+Automated Customer Management: Automatically creates customer profiles while you build a new quotation.
+
+Account Management: Supports setting up different user roles and access levels.
+
+Quotation Lifecycle: Tracks the complete journey of a quotation from draft to finalization.
+
+Project Tracking & Task Management: Automatically converts confirmed quotations into projects, which can then be broken down into detailed tasks.
+
+Smart Dashboards: Offers visual reports to give you an at-a-glance overview of sales data and trends.
+
+Calendar: Provides a clear view of project schedules and key deadlines.
+
+Template & Note Libraries: Create reusable templates for items and common descriptions to significantly speed up the quotation process.
+
+Main Functionality Guide
+1. Login & Navigation
+Login: This is a DEMO version, so the login function has been simplified. Simply click the login button to enter the main system interface.
+
+Sidebar Navigation: The sidebar on the left allows for quick access to various pages, including the Dashboard, Calendar, Quotation Management, Project Management, Customer Management, and the Template & Note Libraries.
+
+2. Quotation & Customer Management
+Creating a New Quotation:
+
+On the "Create Quotation" page, as you fill in customer information, the system automatically creates a customer profile for you. This saves you from having to manually add customers.
+
+You can set different statuses for your quotations: Draft, Sent, Confirmed, Rejected, or Expired.
+
+When a quotation's status is changed to "Confirmed," the system automatically creates a new project on the "Project Management" page and syncs all relevant information, ensuring a seamless workflow.
+
+3. Project Management
+You can set different statuses for each project, including Pending, In Progress, Completed, or On Hold, to easily track progress.
+
+On the project's detail page, you can add a task list to break down project work into smaller, manageable items, which helps with organization and collaboration.
+
+4. Dashboard & Reports
+On the "Dashboard" page, you can quickly grasp your sales overview through visual charts, showing the distribution of quotation statuses and project progress.
+
+5. Calendar
+The "Calendar" page automatically marks important project dates and quotation deadlines. You can navigate by month or date to ensure you don't miss any critical milestones.
+
+6. Template & Note Libraries
+Templates: Click the "Select Template" button to quickly choose from a list of pre-set items like "Website Design" or "App Development," and add all associated sub-items to your quotation with a single click.
+
+Notes: Click the "Select Note" button to choose from a library of common descriptions, such as payment terms or project notes. These notes can also be categorized for quick and easy searching.
+
+Important Notice
+This website is a DEMO version. All data is stored only in your browser's memory and will be cleared upon page refresh. It is not designed for permanent data storage or team collaboration. For a full-featured version with data storage and custom services, please contact a professional or the developer.

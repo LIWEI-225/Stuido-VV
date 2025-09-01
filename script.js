@@ -1,6 +1,4 @@
 // ====================================================================
-// --- Mock Electron API & Sample Data for Web Demo ---
-// 說明：這一段程式碼是為了讓應用程式能在瀏覽器中以「展示模式」運行。
 // 它模擬了原本 Electron 後端的行為，但所有資料都只存在於記憶體中，
 // 重新整理頁面後所有變更都會被重設。
 // ====================================================================
@@ -133,10 +131,40 @@ function switchPage(pageId) {
     document.getElementById(pageId)?.classList.add('active');
 
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.nav-btn[data-page="${pageId}"]`)?.classList.add('active');
+    const navBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
+    if(navBtn) {
+        navBtn.classList.add('active');
+        // Update mobile header title
+        const pageTitle = navBtn.textContent;
+        const mobileTitleEl = document.getElementById('mobile-page-title');
+        if (mobileTitleEl) mobileTitleEl.textContent = pageTitle;
+    }
     
     isQuoteModified = false;
     isProjectModified = false;
+}
+
+function setupMobileMenu() {
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('mobile-menu-overlay');
+
+    function closeMenu() {
+        sidebar.classList.remove('is-visible');
+        overlay.classList.remove('is-visible');
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('is-visible');
+        overlay.classList.toggle('is-visible');
+    });
+
+    overlay.addEventListener('click', closeMenu);
+    
+    // Close menu when a nav button is clicked
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', closeMenu);
+    });
 }
 
 // ====================================================================
@@ -321,7 +349,14 @@ function updateSummary() {
 }
 function addNewItemRow(itemData = {}) {
     const newRow = document.getElementById('itemTable').querySelector('tbody').insertRow();
-    newRow.innerHTML = `<td contenteditable="true">${itemData.item || ''}</td><td contenteditable="true" style="white-space: pre-wrap;">${itemData.description || ''}</td><td contenteditable="true">${itemData.unit || ''}</td><td class="cost"><input type="number" value="${itemData.cost || 0}"></td><td class="qty"><input type="number" value="${itemData.qty || 1}"></td><td class="total">0</td>`;
+    newRow.innerHTML = `
+        <td data-label="Item/項目" contenteditable="true">${itemData.item || ''}</td>
+        <td data-label="Description/說明" contenteditable="true" style="white-space: pre-wrap;">${itemData.description || ''}</td>
+        <td data-label="Unit/單位" contenteditable="true">${itemData.unit || ''}</td>
+        <td data-label="Cost/單價" class="cost"><input type="number" value="${itemData.cost || 0}"></td>
+        <td data-label="Qty/數量" class="qty"><input type="number" value="${itemData.qty || 1}"></td>
+        <td data-label="Total/複價" class="total">0</td>
+    `;
     isQuoteModified = true;
     updateSummary();
 }
@@ -359,7 +394,7 @@ async function loadQuotationForEdit(id) {
     document.getElementById('deadlineDate').value = quote.deadlineDate; document.getElementById('discount').textContent = (quote.discount || 0).toLocaleString();
     document.getElementById('statusSelect').value = quote.status || 'draft';
     const itemBody = document.getElementById('itemTable').querySelector('tbody'); itemBody.innerHTML = '';
-    (quote.items || []).forEach(item => { const row = itemBody.insertRow(); row.innerHTML = `<td contenteditable="true">${item.item || ''}</td><td contenteditable="true" style="white-space: pre-wrap;">${item.description || ''}</td><td contenteditable="true">${item.unit || ''}</td><td class="cost"><input type="number" value="${item.cost || 0}"></td><td class="qty"><input type="number" value="${item.qty || 0}"></td><td class="total">${(item.total || 0).toLocaleString()}</td>`; });
+    (quote.items || []).forEach(item => addNewItemRow(item));
     const noteList = document.getElementById('noteList'); noteList.innerHTML = '';
     (quote.notes || []).forEach(note => { const li = document.createElement('li'); li.contentEditable = 'true'; li.textContent = note; noteList.appendChild(li); });
     updateSummary(); isQuoteModified = false; switchPage('quotationpage');
@@ -414,9 +449,9 @@ async function viewQuotationDetail(id) {
     switchPage('quotationdetailpage');
 }
 function generateDetailHtml(quote) {
-    const itemsHtml = (quote.items || []).map(item => `<tr><td>${item.item || ''}</td><td style="white-space: pre-wrap;">${item.description || ''}</td><td>${item.unit || ''}</td><td style="text-align: right;">${(item.cost || 0).toLocaleString()}</td><td style="text-align: right;">${item.qty || 0}</td><td style="text-align: right;">${(item.total || 0).toLocaleString()}</td></tr>`).join('');
+    const itemsHtml = (quote.items || []).map(item => `<tr><td data-label="Item/項目">${item.item || ''}</td><td data-label="Description/說明" style="white-space: pre-wrap;">${item.description || ''}</td><td data-label="Unit/單位">${item.unit || ''}</td><td data-label="Cost/單價" style="text-align: right;">${(item.cost || 0).toLocaleString()}</td><td data-label="Qty/數量" style="text-align: right;">${item.qty || 0}</td><td data-label="Total/複價" style="text-align: right;">${(item.total || 0).toLocaleString()}</td></tr>`).join('');
     const notesHtml = (quote.notes || []).map(note => `<li>${note}</li>`).join('');
-    return `<header><div class="logo"><img src="https://i.ibb.co/dsPbFmvT/2025-08-23-11-03-12.png" alt="忍者貓創意有限公司 Logo"></div><h1>Production Budget Quotation 報價單</h1><div class="header-info"><div class="info-row"><span class="label">Client/客戶:</span><span class="value">${quote.client || ''}</span></div><div class="info-row"><span class="label">Date/製表日期:</span><span class="value">${quote.quoteDate || ''}</span></div><div class="info-row"><span class="label">Project/項目名:</span><span class="value">${quote.project || ''}</span></div><div class="info-row"><span class="label">Layout/樣稿日:</span><span class="value">${quote.layoutDate || ''}</span></div><div class="info-row"><span class="label">TEL/聯絡電話:</span><span class="value">${quote.tel || ''}</span></div><div class="info-row"><span class="label">Deadline/交稿日:</span><span class="value">${quote.deadlineDate || ''}</span></div></div></header><section class="itemized-list"><h2>Itemized List & Cost/費用明細</h2><table><thead><tr><th>Item/項目</th><th>Description/說明</th><th>Unit/單位</th><th>Cost/單價</th><th>Qty/數量</th><th>Total/複價</th></tr></thead><tbody>${itemsHtml}</tbody></table></section><section class="final-section"><table class="final-table"><tr><td class="payment-cell"><h2>Terms & Conditions/付款方式:</h2><p>本報價於客戶簽章及匯款訂金50%後訂單生效。確認預付款後即開始製作。完稿無誤後,方可交付檔案。</p><div class="payment-info"><h3>Remittance Account/收款帳戶:</h3><ul><li><span>戶名 | 蔡宣恩</span></li><li><span>帳戶 | 郵局局號(700)台中健行路郵局 0021550-0272929</span></li></ul></div></td><td class="summary-cell"><div class="summary-section"><div class="summary-row"><span class="label">Subtotal/小計:</span><span class="value">${(quote.subtotal || 0).toLocaleString()}</span></div><div class="summary-row"><span class="label">Discount/折扣優惠:</span><span class="value">${(quote.discount || 0).toLocaleString()}</span></div><div class="summary-row"><span class="label">Tax/稅額: 5%</span><span class="value">${(quote.tax || 0).toLocaleString()}</span></div><div class="summary-row grand-total"><span class="label">Grand Total/含稅總計:</span><span class="value">${(quote.grandTotal || 0).toLocaleString()}</span></div></div></td></tr></table></section><section class="notes-container"><h2>Supplementary Notes/補充說明</h2><ol>${notesHtml}</ol><table class="signature-table"><tr><td class="signature-cell-left"><h2>SIGNATURE CONFIRMATION 簽字確認</h2><div class="signature-line"></div></td><td class="signature-cell-right-empty"></td></tr></table><table class="ninja-cat-table"><tr><td class="ninja-cat-cell">NINJA CAT</td></tr></table></section>`;
+    return `<header><div class="logo"><img src="https://i.ibb.co/dsPbFmvT/2025-08-23-11-03-12.png" alt="忍者貓創意有限公司 Logo"></div><h1>Production Budget Quotation 報價單</h1><div class="header-info"><div class="info-row"><span class="label">Client/客戶:</span><span class="value">${quote.client || ''}</span></div><div class="info-row"><span class="label">Date/製表日期:</span><span class="value">${quote.quoteDate || ''}</span></div><div class="info-row"><span class="label">Project/項目名:</span><span class="value">${quote.project || ''}</span></div><div class="info-row"><span class="label">Layout/樣稿日:</span><span class="value">${quote.layoutDate || ''}</span></div><div class="info-row"><span class="label">TEL/聯絡電話:</span><span class="value">${quote.tel || ''}</span></div><div class="info-row"><span class="label">Deadline/交稿日:</span><span class="value">${quote.deadlineDate || ''}</span></div></div></header><section class="itemized-list"><h2>Itemized List & Cost/費用明細</h2><table id="itemTable"><thead><tr><th>Item/項目</th><th>Description/說明</th><th>Unit/單位</th><th>Cost/單價</th><th>Qty/數量</th><th>Total/複價</th></tr></thead><tbody>${itemsHtml}</tbody></table></section><section class="final-section"><table class="final-table"><tr><td class="payment-cell"><h2>Terms & Conditions/付款方式:</h2><p>本報價於客戶簽章及匯款訂金50%後訂單生效。確認預付款後即開始製作。完稿無誤後,方可交付檔案。</p><div class="payment-info"><h3>Remittance Account/收款帳戶:</h3><ul><li><span>戶名 | 蔡宣恩</span></li><li><span>帳戶 | 郵局局號(700)台中健行路郵局 0021550-0272929</span></li></ul></div></td><td class="summary-cell"><div class="summary-section"><div class="summary-row"><span class="label">Subtotal/小計:</span><span class="value">${(quote.subtotal || 0).toLocaleString()}</span></div><div class="summary-row"><span class="label">Discount/折扣優惠:</span><span class="value">${(quote.discount || 0).toLocaleString()}</span></div><div class="summary-row"><span class="label">Tax/稅額: 5%</span><span class="value">${(quote.tax || 0).toLocaleString()}</span></div><div class="summary-row grand-total"><span class="label">Grand Total/含稅總計:</span><span class="value">${(quote.grandTotal || 0).toLocaleString()}</span></div></div></td></tr></table></section><section class="notes-container"><h2>Supplementary Notes/補充說明</h2><ol>${notesHtml}</ol><table class="signature-table"><tr><td class="signature-cell-left"><h2>SIGNATURE CONFIRMATION 簽字確認</h2><div class="signature-line"></div></td><td class="signature-cell-right-empty"></td></tr></table><table class="ninja-cat-table"><tr><td class="ninja-cat-cell">NINJA CAT</td></tr></table></section>`;
 }
 async function cloneQuotation(id) { 
     const originalQuote = await window.electronAPI.getQuotation(id); if (!originalQuote) { showStatusMessage('找不到要複製的報價單', 'error'); return; }
@@ -866,6 +901,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         switchPage(pageId);
     }));
+
+    // --- RWD ---
+    setupMobileMenu();
 
     // 初始頁面載入
     switchPage('homepage');
